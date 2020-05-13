@@ -7,63 +7,87 @@ $Form.Size = New-Object System.Drawing.Size(1200,1000)
 ############################################## Start functions
 
 function SrcBase {
+######### input checking variables #########
+$2chars = "01"
+$10chars = $2chars + "23456789"
+$16chars = $10chars + "ABCDEFabcdef"
+
+######### formatting variables #########
 $NL = "`r`n"
 $TAB="`t"
-if ($RadioButton1.Checked -eq $true) {$base=10}
-if ($RadioButton2.Checked -eq $true) {$base=16}
-if ($RadioButton3.Checked -eq $true) {$base=2}
-if ($RadioButton4.Checked -eq $true) {$base="A"}
+$QT = "`""
 
 $InputValue = $args[0]
+$result=""
 $outputBox.Text = ""
 
-if ($base -eq 10 ){
-    $decnum = $InputValue
-    $binnum = [convert]::tostring($decnum,2)
-    $hexnum = [convert]::tostring($decnum,16)
-    $result = $NL+"DEC (0d)"+$TAB+ $decnum+$NL+"BIN (0b)"+$TAB + $binnum +$NL+"HEX (0x)"+$TAB + $hexnum
-    if ($decnum -le 65535) { 
-        $asciival = [char][int]$decnum
-        $result += $NL+"ASCII"+$TAB+$TAB+$asciival
-        }
-    } 
-elseif ($base -eq 16) {
-    $hexnum = $InputValue
-    $decnum = [Convert]::ToString("0x"+$hexnum, 10)
-    $binnum = [convert]::tostring($decnum,2)
-    $result = $NL+"HEX (0x)"+$TAB+$hexnum+$NL +"BIN (0b)"+$TAB+$binnum+$NL+ "DEC (0d)"+$TAB+$decnum
-    if ($decnum -le 65535) { 
-        $asciival = [char]$decnum
-        $result += $NL+"ASCII"+$TAB+$TAB+$asciival
-        } 
-    }
-elseif ($base -eq 2) {
-    $binnum = $InputValue
-    $decnum = [convert]::toint32($binnum,2)
-    $hexnum = [convert]::tostring($decnum,16)
-    $result = $NL+"BIN (0b)"+$TAB + $binnum +$NL+"HEX (0x)"+$TAB + $hexnum+$NL+ "DEC (0d)"+$TAB+ $decnum
-    if ($decnum -le 65535) { 
-        $asciival = [char][int]$decnum
-        $result += $NL+"ASCII"+$TAB+$TAB+$asciival
-        } 
-    }
+if ($RadioButton1.Checked -eq $true) {$base=10 ; $validchars = $10chars.ToCharArray()}
+if ($RadioButton2.Checked -eq $true) {$base=16 ; $validchars = $16chars.ToCharArray()}
+if ($RadioButton3.Checked -eq $true) {$base=2  ; $validchars = $2chars.ToCharArray() }
+if ($RadioButton4.Checked -eq $true) {$base="A"}
 
-elseif ($base -eq "A") {
-    $hnum = @()
-    $bnum = @()
-    $asciival = $InputValue
-    $list = [int[]][char[]]$inputvalue
-    for ($i=0 ; $i -lt $asciival.length ; $i++) {
-       $d = $list[$i]
-       $h = [convert]::tostring($d,16)
-       $b = [convert]::tostring($d,2)
-       $hnum += $h
-       $bnum += $b
-       }
-    $result = $NL+"ASCII`t`t"+$asciival
-    $result += $NL+"DEC (0d)`t"+ ($list -join ' ' )
-    $result += $NL+"HEX (0x)`t"+ ($hnum -join ' ' )
-    $result += $NL+"BIN (0b)`t"+ ($bnum -join ' ' )
+#### input checking #####
+$validinput = $true
+
+if ([string]$base -notmatch "A" ) {
+    foreach ($c in $InputValue.ToCharArray()) {
+        if ( $c -notin $validchars ) {
+            $result = "Invalid Character Found in Input"+$NL+$QT+$c+$QT+" is not valid for base "+$base+" conversion"
+            $validinput = $false
+            break
+            }
+        }
+    }            
+
+if( $validinput ) {
+
+    if ($base -eq 10 ){
+        $decnum = $InputValue
+        $binnum = [convert]::tostring($decnum,2)
+        $hexnum = [convert]::tostring($decnum,16)
+        $result = $NL+"DEC (0d)"+$TAB+ $decnum+$NL+"BIN (0b)"+$TAB + $binnum +$NL+"HEX (0x)"+$TAB + $hexnum
+        if ([int]$decnum -le 65535) { 
+            $asciival = [char][int]$decnum
+            $result += $NL+"ASCII"+$TAB+$TAB+$asciival
+            }
+        } 
+    elseif ($base -eq 16) {
+        $hexnum = $InputValue
+        $decnum = [Convert]::ToString("0x"+$hexnum, 10)
+        $binnum = [convert]::tostring($decnum,2)
+        $result = $NL+"HEX (0x)"+$TAB+$hexnum+$NL +"BIN (0b)"+$TAB+$binnum+$NL+ "DEC (0d)"+$TAB+$decnum
+        if ([int]$decnum -le 65535) { 
+            $asciival = [char][int]$decnum
+            $result += $NL+"ASCII"+$TAB+$TAB+$asciival
+            } 
+        }
+    elseif ($base -eq 2) {
+        $binnum = $InputValue
+        $decnum = [convert]::toint32($binnum,2)
+        $hexnum = [convert]::tostring($decnum,16)
+        $result = $NL+"BIN (0b)"+$TAB + $binnum +$NL+"HEX (0x)"+$TAB + $hexnum+$NL+ "DEC (0d)"+$TAB+ $decnum
+        if ([int]$decnum -le 65535) { 
+            $asciival = [char][int]$decnum
+            $result += $NL+"ASCII"+$TAB+$TAB+$asciival
+            } 
+        }
+    elseif ($base -eq "A") {
+        $hnum = @()
+        $bnum = @()
+        $asciival = $InputValue
+        $list = [int[]][char[]]$inputvalue
+        for ($i=0 ; $i -lt $asciival.length ; $i++) {
+           $d = $list[$i]
+           $h = [convert]::tostring($d,16)
+           $b = [convert]::tostring($d,2)
+           $hnum += $h
+           $bnum += $b
+           }
+        $result = $NL+"ASCII`t`t"+$asciival
+        $result += $NL+"DEC (0d)`t"+ ($list -join ' ' )
+        $result += $NL+"HEX (0x)`t"+ ($hnum -join ' ' )
+        $result += $NL+"BIN (0b)`t"+ ($bnum -join ' ' )
+        }
     }
 
 # display the result
