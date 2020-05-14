@@ -3,6 +3,7 @@
 
 $Form = New-Object System.Windows.Forms.Form    
 $Form.Size = New-Object System.Drawing.Size(1200,1000)  
+$Form.text = "Base and Format Conversion"
 
 ############################################## Start functions
 
@@ -53,7 +54,7 @@ if( $validinput ) {
         } 
     elseif ($base -eq 16) {
         $hexnum = $InputValue
-        $decnum = [Convert]::ToString("0x"+$hexnum, 10)
+        $decnum = [int]("0x"+$hexnum)
         $binnum = [convert]::tostring($decnum,2)
         $result = $NL+"HEX (0x)"+$TAB+$hexnum+$NL +"BIN (0b)"+$TAB+$binnum+$NL+ "DEC (0d)"+$TAB+$decnum
         if ([int]$decnum -le 65535) { 
@@ -132,7 +133,7 @@ $groupBox.Controls.Add($RadioButton2)
 $RadioButton3 = New-Object System.Windows.Forms.RadioButton
 $RadioButton3.Location = new-object System.Drawing.Point(15,210)
 $RadioButton3.size = New-Object System.Drawing.Size(800,70)
-$RadioButton3.Text = "Binary (0d)"
+$RadioButton3.Text = "Binary (0b)"
 $groupBox.Controls.Add($RadioButton3)
 
 $RadioButton4 = New-Object System.Windows.Forms.RadioButton
